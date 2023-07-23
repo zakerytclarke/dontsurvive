@@ -198,9 +198,6 @@ function draw() {
 
     //Draw background images
     image(images["background"], 0-PLAYER_X, 0-PLAYER_Y, windowWidth*10, windowHeight*10);
-    tint(255, 128);
-    image(images["background_filter"], 0, 0, windowWidth, windowHeight);
-    noTint();
     drawImageWithAspectRatio(images["character"], 100, windowWidth / 2, windowHeight / 2);
 
     entities = entities.sort((a, b) => (a.y-a.image.height) - (b.y-b.image.height));
@@ -209,6 +206,10 @@ function draw() {
         const entity = entities[i];
         drawImageWithAspectRatio(entity.image, entity.size, entity.x-PLAYER_X, entity.y-PLAYER_Y)
     }
+    tint(255, 255);
+    image(images["background_filter"], 0, 0, windowWidth, windowHeight);
+    noTint();
+    
     updatePlayerPosition();
 }
 

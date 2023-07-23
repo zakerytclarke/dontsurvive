@@ -109,7 +109,7 @@ const Bunny = function (pos) {
 }
 
 const Bird = function (pos) {
-    return new Entity(pos.x, pos.y, images['bunny'], size_range(40,60), function () {
+    return new Entity(pos.x, pos.y, images['bird'], size_range(30,50), function () {
         default_walk(this,1);
     });
 }
@@ -209,13 +209,13 @@ function preload() {
         return clusters;
     }
 
-    function duplicate(entity, num, args = null) {
+    function duplicate(entity, num, args = []) {
         var out = [];
         for (var i = 0; i < num; i++) {
-            if (args == null) {
+            if (args[i]==null) {
                 temp_args = getRandomSpawn();
             }
-            out.push(entity(args || temp_args));
+            out.push(entity(args[i] || temp_args));
         }
         return out;
     }
@@ -241,7 +241,7 @@ function preload() {
     images['ghost'] = loadImage('./assets/ghost.png');
     images['eye'] = loadImage('./assets/eye.png');
 
-    clusters = generateDisjointClusters(100);
+    clusters = generateDisjointClusters(2000);
 
     //Load Entities
     // entities = [
@@ -256,23 +256,23 @@ function preload() {
     // ]
     entities =
         [   
-            duplicate(makeCluster(cemeteryCluster), 100).flat(1),
-            duplicate(makeCluster(fenceCluster), 100).flat(1),
-            duplicate(makeCluster(grassCluster), 100).flat(1),
+            duplicate(makeCluster(cemeteryCluster), 100, clusters.slice(0,100)).flat(1),
+            duplicate(makeCluster(fenceCluster), 100, clusters.slice(100,200)).flat(1),
+            duplicate(makeCluster(grassCluster), 100, clusters.slice(200,300)).flat(1),
             
             // [Character()],
             // duplicate(makeCluster(cemeteryCluster),100).flat(1)
             duplicate(Bunny, 100),
-            duplicate(Fire, 100),
-            duplicate(Stone, 100),
-            duplicate(Grass, 100),
-            duplicate(Berries, 100),
-            duplicate(Wood, 100),
+            duplicate(Fire, 100, clusters.slice(300,400)),
+            duplicate(Stone, 100,  clusters.slice(400,500)),
+            duplicate(Grass, 100,  clusters.slice(500,600)),
+            duplicate(Berries, 100,  clusters.slice(600,700)),
+            duplicate(Wood, 100,  clusters.slice(700,800)),
             duplicate(Ghost, 100),
             duplicate(Eye, 100),
 
-            duplicate(Fence, 100),
-            duplicate(Tree, 100),
+            duplicate(Fence, 100,  clusters.slice(800,900)),
+            duplicate(Tree, 100,  clusters.slice(900,1000)),
             duplicate(Bird, 100),
         ].flat(1);
 

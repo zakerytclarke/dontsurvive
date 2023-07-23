@@ -40,6 +40,10 @@ function default_walk(self,stepSize=1) {
 
 }
 
+function size_range(n,m){
+    return (Math.random()*(m-n))+n
+}
+
 const Character = function (pos) {
     return new Entity(0, 0, images['character'], 100, function () {
         this.x = PLAYER_X+windowWidth/2;
@@ -55,48 +59,81 @@ const Fire = function (pos) {
 }
 
 const Stone = function (pos) {
-    return new Entity(pos.x, pos.y, images['stone'], 70, function () {
+    return new Entity(pos.x, pos.y, images['stone'], size_range(60,70), function () {
 
     });
 }
 
 const Grass = function (pos) {
-    return new Entity(pos.x, pos.y, images['grass'], 70, function () {
+    return new Entity(pos.x, pos.y, images['grass'], size_range(60,70), function () {
 
     });
 }
 
 
 const Berries = function (pos) {
-    return new Entity(pos.x, pos.y, images['berries'], 70, function () {
+    return new Entity(pos.x, pos.y, images['berries'], size_range(60,70), function () {
 
     });
 }
 
+const Fence = function (pos) {
+    return new Entity(pos.x, pos.y, images['fence'], 125, function () {
+        
+    });
+}
+
+const Tree = function (pos) {
+    return new Entity(pos.x, pos.y, images['tree'], size_range(200,300), function () {
+        
+    });
+}
+
+const Grave = function (pos) {
+    return new Entity(pos.x, pos.y, images['grave'], 50, function () {
+        
+    });
+}
 
 const Wood = function (pos) {
-    return new Entity(pos.x, pos.y, images['wood'], 60, function () {
+    return new Entity(pos.x, pos.y, images['wood'], size_range(50,60), function () {
         
     });
 }
 
 
 const Bunny = function (pos) {
-    return new Entity(pos.x, pos.y, images['bunny'], 50, function () {
+    return new Entity(pos.x, pos.y, images['bunny'], size_range(40,60), function () {
         default_walk(this,1);
     });
 }
 
+const Bird = function (pos) {
+    return new Entity(pos.x, pos.y, images['bunny'], size_range(40,60), function () {
+        default_walk(this,1);
+    });
+}
+
+
 const Ghost = function (pos) {
-    return new Entity(pos.x, pos.y, images['ghost'], 70, function () {
+    return new Entity(pos.x, pos.y, images['ghost'], size_range(50,70), function () {
         default_walk(this,1);
     });
 }
 
 const Eye = function (pos) {
-    return new Entity(pos.x, pos.y, images['eye'], 20, function () {
-        // this.size -= 1;
-        default_walk(this,1);
+    return new Entity(pos.x, pos.y, images['eye'], size_range(20,40), function () {
+        distance =  Math.sqrt((PLAYER_X - this.x+windowWidth/2) ** 2 + (PLAYER_Y - this.y+windowHeight/2) ** 2);
+
+
+        if(distance>700){
+            this.size = 50;
+        }if(distance<200){
+            this.size = 1;
+        }else{
+            this.size = distance/10;
+        }
+        
     });
 }
 
@@ -104,7 +141,7 @@ const Eye = function (pos) {
 
 
 function preload() {
-    BORDER = 10;
+    BORDER = 500;
     MIN_X = 0 + BORDER;
     MIN_Y = 0 + BORDER;
 
@@ -114,7 +151,7 @@ function preload() {
     PLAYER_X = MAX_X/2;
     PLAYER_Y = MAX_Y/2;
     function getRandomSpawn() {
-        return { x: Math.random() * MAX_X, y: Math.random() * MAX_Y };
+        return { x: Math.random() * (MAX_X-2*BORDER) + BORDER, y: Math.random() * (MAX_Y-2*BORDER) + BORDER};
     }
 
 
@@ -140,9 +177,12 @@ function preload() {
     images['berries'] = loadImage('./assets/berries.png');
     images['grass'] = loadImage('./assets/grass.png');
     images['wood'] = loadImage('./assets/woodstump.png');
-
+    images['tree'] = loadImage('./assets/trees.png');
+    images['fence'] = loadImage('./assets/fence.png');
+    images['grave'] = loadImage('./assets/grave.png');
 
     images['bunny'] = loadImage('./assets/bunny.png');
+    images['bird'] = loadImage('./assets/bird.png');
 
     images['ghost'] = loadImage('./assets/ghost.png');
     images['eye'] = loadImage('./assets/eye.png');
@@ -169,6 +209,11 @@ function preload() {
             duplicate(Wood, 100),
             duplicate(Ghost, 100),
             duplicate(Eye, 100),
+
+            duplicate(Fence, 100),
+            duplicate(Grave, 100),
+            duplicate(Tree, 100),
+            duplicate(Bird, 100),
         ].flat(1);
 
     setInterval(function () {

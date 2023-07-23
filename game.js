@@ -128,13 +128,50 @@ const Eye = function (pos) {
 
         if(distance>700){
             this.size = 50;
-        }if(distance<200){
+        }if(distance<100){
             this.size = 1;
         }else{
             this.size = distance/10;
         }
         
     });
+}
+
+
+function makeCluster(entities){
+    return function(pos){
+        out = [];
+        for(var i in entities){
+            let entity = entities[i][0];
+            let offset_pos = entities[i][1];
+            
+            out.push(entity({
+                x:pos.x+offset_pos.x,
+                y:pos.y+offset_pos.y
+            }))
+         
+        }
+        return out;
+    }
+        
+}
+
+cemeteryCluster = [
+    [Grave,{x:0,y:0}],
+    [Grave,{x:100,y:0}],
+    [Grave,{x:-100,y:0}],
+].concat(Array.from({ length: 10 }, (_, k) => [Eye,{x:(Math.random()*200-100),y:Math.random()*100-150}]));
+
+fenceCluster = [
+    [Fence,{x:0,y:0}],
+    [Fence,{x:100,y:0}],
+    [Fence,{x:-100,y:0}],
+]
+
+grassCluster = Array.from({ length: 5 }, (_, k) => [Grass,{x:(Math.random()*200-100),y:(Math.random()*200-100)}])
+
+function distance(x1,y1,x2,y2){
+    return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 }
 
 
@@ -154,6 +191,23 @@ function preload() {
         return { x: Math.random() * (MAX_X-2*BORDER) + BORDER, y: Math.random() * (MAX_Y-2*BORDER) + BORDER};
     }
 
+
+    function generateDisjointClusters(n,min_dist = 100){
+    
+        var clusters = [];
+        while(clusters.length < n){
+            let pos = getRandomSpawn();
+            for(var i=0;i<clusters.length;i++){
+                if(distance(pos.x,pos.y,clusters[i].x,clusters[i].y)<min_dist){
+                    break;
+                }
+            }
+            if(i>=clusters.length){
+                clusters.push(pos);
+            }
+        }
+        return clusters;
+    }
 
     function duplicate(entity, num, args = null) {
         var out = [];
@@ -187,6 +241,8 @@ function preload() {
     images['ghost'] = loadImage('./assets/ghost.png');
     images['eye'] = loadImage('./assets/eye.png');
 
+    clusters = generateDisjointClusters(100);
+
     //Load Entities
     // entities = [
     //     Bunny(getRandomSpawn()),
@@ -200,7 +256,12 @@ function preload() {
     // ]
     entities =
         [   
+            duplicate(makeCluster(cemeteryCluster), 100).flat(1),
+            duplicate(makeCluster(fenceCluster), 100).flat(1),
+            duplicate(makeCluster(grassCluster), 100).flat(1),
+            
             // [Character()],
+            // duplicate(makeCluster(cemeteryCluster),100).flat(1)
             duplicate(Bunny, 100),
             duplicate(Fire, 100),
             duplicate(Stone, 100),
@@ -211,7 +272,6 @@ function preload() {
             duplicate(Eye, 100),
 
             duplicate(Fence, 100),
-            duplicate(Grave, 100),
             duplicate(Tree, 100),
             duplicate(Bird, 100),
         ].flat(1);
@@ -245,7 +305,7 @@ function draw() {
     image(images["background"], 0-PLAYER_X, 0-PLAYER_Y, windowWidth*10, windowHeight*10);
     drawImageWithAspectRatio(images["character"], 100, windowWidth / 2, windowHeight / 2);
 
-    entities = entities.sort((a, b) => (a.y-a.image.height) - (b.y-b.image.height));
+    entities = entities.sort((a, b) => (a.y - b.y));
     
     for (i in entities) {
         const entity = entities[i];
